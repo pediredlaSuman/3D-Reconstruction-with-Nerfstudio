@@ -1,0 +1,122 @@
+# 3D Reconstruction Using Nerfstudio
+
+## 1. Introduction
+
+This project focuses on performing **3D reconstruction from a video** using **Nerfstudio**, a state-of-the-art NeRF (Neural Radiance Fields) framework. The goal of the assignment was to convert a monocular video into a 3D representation of the scene by estimating camera poses, training a NeRF model, and visualizing the reconstructed output.
+
+---
+
+## 2. Environment Setup
+
+### Hardware Requirements
+
+* CUDA-compatible NVIDIA GPU
+* Minimum 8–12 GB GPU memory recommended
+* Sufficient system RAM (16 GB preferred)
+
+### Software Requirements
+
+* Docker
+* NVIDIA Container Toolkit
+* Nerfstudio Docker Image
+
+### Setup Steps
+
+1. Installed Docker on the system
+2. Installed NVIDIA Container Toolkit to enable GPU support in Docker
+3. Pulled the official Nerfstudio Docker image
+4. Mounted local directories into the container for data persistence
+
+---
+
+## 3. Commands Used and Explanation
+
+### Docker Image Setup
+
+```bash
+docker pull ghcr.io/nerfstudio-project/nerfstudio:latest
+```
+
+This command downloads the latest Nerfstudio Docker image containing all required dependencies.
+
+### Running the Docker Container
+
+```bash
+docker run --gpus all -it \
+-v C:\Users\srisa\nerf_video:/workspace/video \
+-v C:\Users\srisa\nerf_output:/workspace/output \
+-v C:\Users\srisa\nerf_train:/workspace/train \
+-v C:\Users\srisa\nerf_exports:/workspace/exports \
+-p 7007:7007 \
+--rm ghcr.io/nerfstudio-project/nerfstudio:latest
+```
+
+This command launches the Nerfstudio container with GPU access and mounts local folders for video input, output data, training logs, and exports.
+
+### Video Processing and Pose Estimation
+
+```bash
+ns-process-data video \
+--data /workspace/video/Sample_video.mov \
+--output-dir /workspace/output \
+--num-frames-target 100
+```
+
+This step extracts frames from the input video, runs COLMAP to detect features, matches them, and estimates camera poses.
+
+### NeRF Training
+
+```bash
+ns-train nerfacto \
+--pipeline.model.predict-normals True \
+--vis viewer \
+--data /workspace/output \
+--output-dir /workspace/train
+```
+
+This command starts training a Nerfacto model using the processed dataset and launches a live viewer.
+
+---
+
+## 4. Challenges Faced
+
+### Low COLMAP Pose Recovery
+
+* Only 2–3% of images were successfully matched by COLMAP
+* Caused by motion blur, limited scene overlap, and lighting variations
+
+### Long Processing Time
+
+* COLMAP bundle adjustment took significant time
+* Feature extraction and matching were computationally expensive
+
+### GPU Memory Errors
+
+* CUDA out-of-memory errors occurred during training
+* Viewer rendering increased GPU load
+
+---
+
+## 5. Solutions Implemented
+
+* Reduced the number of extracted frames to improve pose consistency
+* Re-ran preprocessing with cleaner frame selection
+* Restarted training after adjusting batch sizes
+* Disabled unnecessary visualizations when GPU memory was limited
+
+---
+
+## 6. Final Outputs
+
+* Estimated camera poses stored in Nerfstudio dataset format
+* Trained NeRF model checkpoints
+* Interactive 3D viewer accessible via browser (`http://localhost:7007`)
+* Point cloud export generated from trained model
+
+---
+
+## 7. Conclusion
+
+This assignment provided hands-on experience with modern 3D reconstruction pipelines using Nerfstudio. Despite challenges such as poor pose recovery and GPU memory limitations, the project successfully demonstrated the end-to-end workflow from video input to 3D scene reconstruction. The results highlight both the power and limitations of NeRF-based methods when applied to real-world video data.
+
+Overall, this project strengthened understanding of camera pose estimation, NeRF training, and practical deployment considerations in 3D vision systems.
