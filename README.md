@@ -1,5 +1,5 @@
 # 3D-Reconstruction-with-Nerfstudio
-# 3D Reconstruction with Nerfstudio
+
 
 This repository contains an **end-to-end 3D reconstruction pipeline** implemented using **Nerfstudio**. The project demonstrates how to reconstruct a 3D scene from a **single monocular video** using modern NeRF-based methods, covering environment setup, pose estimation, NeRF training, visualization, and point cloud export.
 
