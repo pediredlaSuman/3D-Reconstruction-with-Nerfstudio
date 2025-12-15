@@ -1,0 +1,53 @@
+# Nerfstudio Training Configuration File
+# Project: 3D Reconstruction with Nerfstudio
+# Pipeline: nerfacto
+# Generated during ns-train execution
+
+trainer:
+  method_name: nerfacto
+  max_num_iterations: 30000
+  steps_per_save: 2000
+  mixed_precision: true
+
+machine:
+  seed: 42
+  num_devices: 1
+  device_type: cuda
+
+viewer:
+  websocket_host: 0.0.0.0
+  websocket_port: 7007
+  quit_on_train_completion: true
+
+pipeline:
+  datamanager:
+    data: /workspace/output
+    train_num_rays_per_batch: 4096
+    eval_num_rays_per_batch: 4096
+    camera_res_scale_factor: 1.0
+
+  model:
+    _target: nerfstudio.models.nerfacto.NerfactoModel
+    predict_normals: true
+    hidden_dim: 64
+    num_levels: 16
+    max_res: 2048
+    num_nerf_samples_per_ray: 48
+    num_proposal_samples_per_ray: [256, 96]
+
+optimizers:
+  fields:
+    optimizer:
+      lr: 0.01
+    scheduler:
+      lr_final: 0.0001
+  proposal_networks:
+    optimizer:
+      lr: 0.01
+    scheduler:
+      lr_final: 0.0001
+
+logging:
+  steps_per_log: 10
+  local_writer:
+    enable: true
