@@ -1,0 +1,63 @@
+ COMMANDS USED — NERFSTUDIO PIPELINE
+1) Docker Image Setup
+docker pull ghcr.io/nerfstudio-project/nerfstudio:latest
+
+2) Run Nerfstudio Docker Container (GPU Enabled)
+docker run --gpus all -it \
+-v C:\Users\srisa\nerf_video:/workspace/video \
+-v C:\Users\srisa\nerf_output:/workspace/output \
+-v C:\Users\srisa\nerf_train:/workspace/train \
+-v C:\Users\srisa\nerf_exports:/workspace/exports \
+-v C:\Users\srisa\.cache:/home/user/.cache \
+-p 7007:7007 \
+--rm \
+--shm-size=12gb \
+ghcr.io/nerfstudio-project/nerfstudio:latest
+
+3) GPU Verification (Optional Diagnostics)
+nvidia-smi
+
+python -c "import torch; print(torch.cuda.is_available())"
+
+4) Video Processing & Camera Pose Estimation
+ns-process-data video \
+--data /workspace/video/Sample_video.mov \
+--output-dir /workspace/output \
+--num-frames-target 100
+
+(Other tested variations)
+ns-process-data video \
+--data /workspace/video/Sample_video.mov \
+--output-dir /workspace/output \
+--num-frames-target 120
+
+ns-process-data video \
+--data /workspace/video/Sample_video.mov \
+--output-dir /workspace/output \
+--num-frames-target 200
+
+5️⃣ Camera Pose Visualization
+python camera_pose_display.py --input_dir /workspace/output
+
+6️⃣ NeRF Training (Nerfacto Pipeline)
+ns-train nerfacto \
+--viewer.quit-on-train-completion True \
+--pipeline.model.predict-normals True \
+--vis "viewer" \
+--data /workspace/output \
+--output-dir /workspace/train
+
+7️⃣ Viewer Access (Browser)
+http://localhost:7007
+
+8️⃣ Point Cloud Export
+ns-export pointcloud \
+--load-config /workspace/train/output/nerfacto/<timestamp>/config.yml \
+--output-dir /workspace/exports \
+--num-points 1000000 \
+--remove-outliers True \
+--normal-method open3d \
+--save-world-frame False
+
+
+Replace <timestamp> with your actual folder name created during training
